@@ -7,8 +7,8 @@ import 'package:expense_tracker/presentation/providers/transaction_provider.dart
 import 'package:provider/provider.dart';
 
 class TransactionDetailScreen extends StatefulWidget {
-  final domain.Transaction transaction;
-  final void Function(domain.Transaction) onEdit;
+  final domain.TransactionExp transaction;
+  final void Function(domain.TransactionExp) onEdit;
   final VoidCallback onDelete;
 
   const TransactionDetailScreen({
@@ -24,7 +24,7 @@ class TransactionDetailScreen extends StatefulWidget {
 }
 
 class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
-  late domain.Transaction currentTransaction;
+  late domain.TransactionExp currentTransaction;
 
   @override
   void initState() {
@@ -100,7 +100,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                               ),
                         ),
                       );
-                      if (result != null && result is domain.Transaction) {
+                      if (result != null && result is domain.TransactionExp) {
                         setState(() => currentTransaction = result);
                         widget.onEdit(result);
                       }

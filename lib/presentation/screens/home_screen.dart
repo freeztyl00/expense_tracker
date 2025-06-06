@@ -1,12 +1,12 @@
 import 'package:expense_tracker/utils/category_colors.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
+import 'package:expense_tracker/utils/category_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'transactions_screen.dart';
-import '../utils/category_icons.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -31,17 +31,20 @@ class _HomeScreenState extends State<HomeScreen> {
     provider.loadData();
   }
 
-  List<domain.Transaction> get transactions =>
+  List<domain.TransactionExp> get transactions =>
       context.watch<TransactionProvider>().transactions;
 
   double get initialBalance =>
       context.watch<TransactionProvider>().initialBalance ?? 0;
 
-  List<domain.Transaction> get filteredTransactions {
+  List<domain.TransactionExp> get filteredTransactions {
     return transactions.where((t) {
       final date = t.date;
       final typeMatch =
-          t.type == (isExpense ? domain.TransactionType.expense : domain.TransactionType.income);
+          t.type ==
+          (isExpense
+              ? domain.TransactionType.expense
+              : domain.TransactionType.income);
       return typeMatch &&
           date.isAfter(selectedRange.start.subtract(const Duration(days: 1))) &&
           date.isBefore(selectedRange.end.add(const Duration(days: 1)));
@@ -245,8 +248,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   shape: const CircleBorder(),
                   onPressed: () async {
                     await Navigator.pushNamed(context, '/add');
-                    await Provider.of<TransactionProvider>(context, listen: false)
-                        .loadData();
+                    await Provider.of<TransactionProvider>(
+                      context,
+                      listen: false,
+                    ).loadData();
                   },
                   child: const Icon(Icons.add, color: Colors.white),
                 ),
@@ -314,15 +319,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                           category: entry.key,
                                           type:
                                               isExpense ? 'expense' : 'income',
-                                          transactions: filteredTransactions
-                                              .where((t) => t.category == entry.key)
-                                              .toList(),
+                                          transactions:
+                                              filteredTransactions
+                                                  .where(
+                                                    (t) =>
+                                                        t.category == entry.key,
+                                                  )
+                                                  .toList(),
                                         ),
                                   ),
                                 );
-                                await Provider.of<TransactionProvider>(context,
-                                        listen: false)
-                                    .loadData();
+                                await Provider.of<TransactionProvider>(
+                                  context,
+                                  listen: false,
+                                ).loadData();
                               },
                             ),
                           );

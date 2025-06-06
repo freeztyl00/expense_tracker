@@ -9,25 +9,26 @@ class TransactionDatasource {
     return firestore.collection('users').doc(userId).collection('transactions');
   }
 
-  Future<List<domain.Transaction>> fetchTransactions(String userId) async {
+  Future<List<domain.TransactionExp>> fetchTransactions(String userId) async {
     final snapshot = await _txCollection(userId).get();
     return snapshot.docs.map((doc) {
       final data = doc.data();
-      return domain.Transaction(
+      return domain.TransactionExp(
         id: doc.id,
         title: data['title'] ?? '',
         amount: (data['amount'] as num).toDouble(),
         category: data['category'] ?? '',
-        type: data['type'] == 'income'
-            ? domain.TransactionType.income
-            : domain.TransactionType.expense,
+        type:
+            data['type'] == 'income'
+                ? domain.TransactionType.income
+                : domain.TransactionType.expense,
         date: (data['date'] as Timestamp).toDate(),
         comment: data['comment'],
       );
     }).toList();
   }
 
-  Future<void> add(String userId, domain.Transaction tx) {
+  Future<void> add(String userId, domain.TransactionExp tx) {
     return _txCollection(userId).add({
       'title': tx.title,
       'amount': tx.amount,
@@ -38,7 +39,7 @@ class TransactionDatasource {
     });
   }
 
-  Future<void> update(String userId, domain.Transaction tx) {
+  Future<void> update(String userId, domain.TransactionExp tx) {
     return _txCollection(userId).doc(tx.id).update({
       'title': tx.title,
       'amount': tx.amount,

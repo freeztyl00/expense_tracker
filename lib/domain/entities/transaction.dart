@@ -1,6 +1,6 @@
 enum TransactionType { expense, income }
 
-class Transaction {
+class TransactionExp {
   final String id;
   final String title;
   final double amount;
@@ -9,7 +9,7 @@ class Transaction {
   final DateTime date;
   final String? comment;
 
-  Transaction({
+  TransactionExp({
     required this.id,
     required this.title,
     required this.amount,

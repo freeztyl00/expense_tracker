@@ -1,3 +1,4 @@
+import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
 import 'package:expense_tracker/presentation/screens/add_transaction_screen.dart';
 import 'package:expense_tracker/presentation/screens/edit_transaction_screen.dart';
 import 'package:expense_tracker/presentation/screens/home_screen.dart';
@@ -31,46 +32,47 @@ class ExpenseTrackerApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final repository = FirestoreTransactionRepository();
     return ChangeNotifierProvider(
-      create: (_) => TransactionProvider(
-        userId: FirebaseAuth.instance.currentUser?.uid ?? '',
-        getTransactionsUseCase: GetTransactions(repository),
-        addTransactionUseCase: AddTransaction(repository),
-        updateTransactionUseCase: UpdateTransaction(repository),
-        deleteTransactionUseCase: DeleteTransaction(repository),
-        getInitialBalanceUseCase: GetInitialBalance(repository),
-        setInitialBalanceUseCase: SetInitialBalance(repository),
-      ),
+      create:
+          (_) => TransactionProvider(
+            userId: FirebaseAuth.instance.currentUser?.uid ?? '',
+            getTransactionsUseCase: GetTransactions(repository),
+            addTransactionUseCase: AddTransaction(repository),
+            updateTransactionUseCase: UpdateTransaction(repository),
+            deleteTransactionUseCase: DeleteTransaction(repository),
+            getInitialBalanceUseCase: GetInitialBalance(repository),
+            setInitialBalanceUseCase: SetInitialBalance(repository),
+          ),
       child: MaterialApp(
-      title: 'Expense Tracker',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        brightness: Brightness.light,
-        primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: Colors.white,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.teal,
-          foregroundColor: Colors.white,
-          elevation: 0,
+        title: 'Expense Tracker',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          brightness: Brightness.light,
+          primarySwatch: Colors.teal,
+          scaffoldBackgroundColor: Colors.white,
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.teal,
+            foregroundColor: Colors.white,
+            elevation: 0,
+          ),
+          inputDecorationTheme: const InputDecorationTheme(
+            border: OutlineInputBorder(),
+          ),
         ),
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-        ),
-      ),
-      initialRoute: '/login',
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/setup': (context) => const SetupScreen(),
-        '/home': (context) => const HomeScreen(),
-        '/add': (context) => const AddTransactionScreen(),
-        '/edit': (context) {
-          final args =
-              ModalRoute.of(context)!.settings.arguments
-                  as Map<String, dynamic>;
-          return EditTransactionScreen(transaction: args);
+        initialRoute: '/login',
+        routes: {
+          '/login': (context) => const LoginScreen(),
+          '/setup': (context) => const SetupScreen(),
+          '/home': (context) => const HomeScreen(),
+          '/add': (context) => const AddTransactionScreen(),
+          '/edit': (context) {
+            final tx =
+                ModalRoute.of(context)!.settings.arguments
+                    as domain.TransactionExp;
+            return EditTransactionScreen(transaction: tx);
+          },
+          '/profile': (context) => const ProfileScreen(),
         },
-        '/profile': (context) => const ProfileScreen(),
-      },
-    ),
+      ),
     );
   }
 }

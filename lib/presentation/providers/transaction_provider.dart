@@ -16,7 +16,7 @@ class TransactionProvider with ChangeNotifier {
   final GetInitialBalance getInitialBalanceUseCase;
   final SetInitialBalance setInitialBalanceUseCase;
 
-  List<Transaction> transactions = [];
+  List<TransactionExp> transactions = [];
   double? initialBalance;
 
   TransactionProvider({
@@ -38,17 +38,17 @@ class TransactionProvider with ChangeNotifier {
       getTransactionsUseCase(userId),
       getInitialBalanceUseCase(userId),
     ]);
-    transactions = results[0] as List<Transaction>;
+    transactions = results[0] as List<TransactionExp>;
     initialBalance = results[1] as double?;
     notifyListeners();
   }
 
-  Future<void> addTransaction(Transaction tx) async {
+  Future<void> addTransaction(TransactionExp tx) async {
     await addTransactionUseCase(userId, tx);
     await loadData();
   }
 
-  Future<void> updateTransaction(Transaction tx) async {
+  Future<void> updateTransaction(TransactionExp tx) async {
     await updateTransactionUseCase(userId, tx);
     await loadData();
   }

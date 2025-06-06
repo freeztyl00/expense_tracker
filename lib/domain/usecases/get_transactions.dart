@@ -5,7 +5,7 @@ class GetTransactions {
   final TransactionRepository repository;
   GetTransactions(this.repository);
 
-  Future<List<Transaction>> call(String userId) {
+  Future<List<TransactionExp>> call(String userId) {
     return repository.getTransactions(userId);
   }
 }

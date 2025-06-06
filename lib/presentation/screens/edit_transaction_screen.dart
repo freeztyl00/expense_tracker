@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class EditTransactionScreen extends StatefulWidget {
-  final domain.Transaction transaction;
+  final domain.TransactionExp transaction;
 
   const EditTransactionScreen({super.key, required this.transaction});
 
@@ -38,10 +38,12 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
   void initState() {
     super.initState();
     _titleController = TextEditingController(text: widget.transaction.title);
-    _amountController =
-        TextEditingController(text: widget.transaction.amount.toString());
-    _commentController =
-        TextEditingController(text: widget.transaction.comment ?? '');
+    _amountController = TextEditingController(
+      text: widget.transaction.amount.toString(),
+    );
+    _commentController = TextEditingController(
+      text: widget.transaction.comment ?? '',
+    );
     selectedDate = widget.transaction.date;
     isExpense = widget.transaction.type == domain.TransactionType.expense;
     selectedCategory = widget.transaction.category;
@@ -72,13 +74,15 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     }
 
     final provider = context.read<TransactionProvider>();
-    final tx = domain.Transaction(
+    final tx = domain.TransactionExp(
       id: widget.transaction.id,
       title: title,
       amount: amount,
       category: selectedCategory,
       type:
-          isExpense ? domain.TransactionType.expense : domain.TransactionType.income,
+          isExpense
+              ? domain.TransactionType.expense
+              : domain.TransactionType.income,
       date: selectedDate,
       comment: comment.isEmpty ? null : comment,
     );

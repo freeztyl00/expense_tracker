@@ -49,13 +49,15 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
 
     final provider = context.read<TransactionProvider>();
-    final tx = domain.Transaction(
+    final tx = domain.TransactionExp(
       id: '',
       title: title,
       amount: amount,
       category: selectedCategory,
       type:
-          isExpense ? domain.TransactionType.expense : domain.TransactionType.income,
+          isExpense
+              ? domain.TransactionType.expense
+              : domain.TransactionType.income,
       date: selectedDate,
       comment: comment.isEmpty ? null : comment,
     );

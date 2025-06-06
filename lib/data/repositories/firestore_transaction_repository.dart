@@ -10,12 +10,13 @@ class FirestoreTransactionRepository implements TransactionRepository {
   final UserDatasource userDatasource;
 
   FirestoreTransactionRepository({FirebaseFirestore? firestore})
-      : transactionDatasource =
-            TransactionDatasource(firestore ?? FirebaseFirestore.instance),
-        userDatasource = UserDatasource(firestore ?? FirebaseFirestore.instance);
+    : transactionDatasource = TransactionDatasource(
+        firestore ?? FirebaseFirestore.instance,
+      ),
+      userDatasource = UserDatasource(firestore ?? FirebaseFirestore.instance);
 
   @override
-  Future<void> addTransaction(String userId, Transaction transaction) {
+  Future<void> addTransaction(String userId, TransactionExp transaction) {
     return transactionDatasource.add(userId, transaction);
   }
 
@@ -25,12 +26,12 @@ class FirestoreTransactionRepository implements TransactionRepository {
   }
 
   @override
-  Future<List<Transaction>> getTransactions(String userId) {
+  Future<List<TransactionExp>> getTransactions(String userId) {
     return transactionDatasource.fetchTransactions(userId);
   }
 
   @override
-  Future<void> updateTransaction(String userId, Transaction transaction) {
+  Future<void> updateTransaction(String userId, TransactionExp transaction) {
     return transactionDatasource.update(userId, transaction);
   }
 

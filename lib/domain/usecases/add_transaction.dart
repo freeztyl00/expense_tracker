@@ -5,7 +5,7 @@ class AddTransaction {
   final TransactionRepository repository;
   AddTransaction(this.repository);
 
-  Future<void> call(String userId, Transaction transaction) {
+  Future<void> call(String userId, TransactionExp transaction) {
     return repository.addTransaction(userId, transaction);
   }
 }

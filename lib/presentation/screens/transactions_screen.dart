@@ -1,16 +1,16 @@
 import 'package:expense_tracker/utils/category_colors.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
+import 'package:expense_tracker/utils/category_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'transaction_detail_screen.dart';
-import '../utils/category_icons.dart';
 import 'package:provider/provider.dart';
 
 class TransactionsScreen extends StatefulWidget {
   final String category;
   final String type; // 'expense' або 'income'
-  final List<domain.Transaction> transactions;
+  final List<domain.TransactionExp> transactions;
 
   const TransactionsScreen({
     super.key,
@@ -24,15 +24,15 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
-  late List<domain.Transaction> localTransactions;
+  late List<domain.TransactionExp> localTransactions;
 
   @override
   void initState() {
     super.initState();
-    localTransactions = List<domain.Transaction>.from(widget.transactions);
+    localTransactions = List<domain.TransactionExp>.from(widget.transactions);
   }
 
-  Future<void> _openTransactionDetail(domain.Transaction tx) async {
+  Future<void> _openTransactionDetail(domain.TransactionExp tx) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -41,16 +41,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               transaction: tx,
               onEdit: (updatedTx) {
                 setState(() {
-                  final index =
-                      localTransactions.indexWhere((e) => e.id == updatedTx.id);
+                  final index = localTransactions.indexWhere(
+                    (e) => e.id == updatedTx.id,
+                  );
                   if (index != -1) localTransactions[index] = updatedTx;
                 });
               },
               onDelete: () async {
                 try {
-                  await context
-                      .read<TransactionProvider>()
-                      .deleteTransaction(tx.id);
+                  await context.read<TransactionProvider>().deleteTransaction(
+                    tx.id,
+                  );
 
                   Navigator.pop(context, 'deleted');
                 } catch (e) {
@@ -72,7 +73,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, List<domain.Transaction>> grouped = {};
+    final Map<String, List<domain.TransactionExp>> grouped = {};
 
     for (var tx in localTransactions) {
       final dateStr = DateFormat('dd.MM.yyyy').format(tx.date);
