@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'edit_transaction_screen.dart';
-
 import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
-import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
-import 'package:provider/provider.dart';
 
 class TransactionDetailScreen extends StatefulWidget {
   final domain.TransactionExp transaction;
