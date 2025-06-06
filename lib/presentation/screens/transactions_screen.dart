@@ -1,15 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/utils/category_colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
+import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'transaction_detail_screen.dart';
 import '../utils/category_icons.dart';
+import 'package:provider/provider.dart';
 
 class TransactionsScreen extends StatefulWidget {
   final String category;
   final String type; // 'expense' або 'income'
-  final List<Map<String, dynamic>> transactions;
+  final List<domain.Transaction> transactions;
 
   const TransactionsScreen({
     super.key,
@@ -23,16 +24,15 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
-  late List<Map<String, dynamic>> localTransactions;
-  final userId = FirebaseAuth.instance.currentUser!.uid;
+  late List<domain.Transaction> localTransactions;
 
   @override
   void initState() {
     super.initState();
-    localTransactions = List<Map<String, dynamic>>.from(widget.transactions);
+    localTransactions = List<domain.Transaction>.from(widget.transactions);
   }
 
-  Future<void> _openTransactionDetail(Map<String, dynamic> tx) async {
+  Future<void> _openTransactionDetail(domain.Transaction tx) async {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
@@ -41,20 +41,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
               transaction: tx,
               onEdit: (updatedTx) {
                 setState(() {
-                  final index = localTransactions.indexWhere(
-                    (e) => e['id'] == updatedTx['id'],
-                  );
+                  final index =
+                      localTransactions.indexWhere((e) => e.id == updatedTx.id);
                   if (index != -1) localTransactions[index] = updatedTx;
                 });
               },
               onDelete: () async {
                 try {
-                  await FirebaseFirestore.instance
-                      .collection('users')
-                      .doc(userId)
-                      .collection('transactions')
-                      .doc(tx['id'])
-                      .delete();
+                  await context
+                      .read<TransactionProvider>()
+                      .deleteTransaction(tx.id);
 
                   Navigator.pop(context, 'deleted');
                 } catch (e) {
@@ -69,17 +65,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     if (result == 'deleted') {
       setState(() {
-        localTransactions.removeWhere((t) => t['id'] == tx['id']);
+        localTransactions.removeWhere((t) => t.id == tx.id);
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final Map<String, List<Map<String, dynamic>>> grouped = {};
+    final Map<String, List<domain.Transaction>> grouped = {};
 
     for (var tx in localTransactions) {
-      final dateStr = DateFormat('dd.MM.yyyy').format(tx['date'] as DateTime);
+      final dateStr = DateFormat('dd.MM.yyyy').format(tx.date);
       grouped.putIfAbsent(dateStr, () => []).add(tx);
     }
 
@@ -124,14 +120,12 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       ),
                       const SizedBox(height: 8),
                       ...txs.map((tx) {
-                        final amount = (tx['amount'] as double).toStringAsFixed(
-                          2,
-                        );
+                        final amount = tx.amount.toStringAsFixed(2);
                         final color =
                             widget.type == 'expense'
                                 ? Colors.red
                                 : Colors.green;
-                        final comment = (tx['comment'] ?? '').toString();
+                        final comment = tx.comment ?? '';
 
                         return GestureDetector(
                           onTap: () => _openTransactionDetail(tx),
@@ -150,10 +144,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 children: [
                                   CircleAvatar(
                                     backgroundColor: getCategoryColor(
-                                      tx['category'],
+                                      tx.category,
                                     ),
                                     child: Icon(
-                                      categoryIcons[tx['category']] ??
+                                      categoryIcons[tx.category] ??
                                           Icons.category,
                                       color: Colors.white,
                                     ),
@@ -169,7 +163,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                           children: [
                                             Expanded(
                                               child: Text(
-                                                tx['title'],
+                                                tx.title,
                                                 style: const TextStyle(
                                                   fontSize: 16,
                                                   fontWeight: FontWeight.w500,

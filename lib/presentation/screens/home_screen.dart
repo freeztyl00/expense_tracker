@@ -1,11 +1,13 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:expense_tracker/utils/category_colors.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
+import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'transactions_screen.dart';
 import '../utils/category_icons.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,86 +17,55 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final userId = FirebaseAuth.instance.currentUser!.uid;
   bool isExpense = true;
   DateTimeRange selectedRange = DateTimeRange(
     start: DateTime.now().subtract(const Duration(days: 7)),
     end: DateTime.now(),
   );
 
-  List<Map<String, dynamic>> transactions = [];
-  double initialBalance = 0;
-
   @override
   void initState() {
     super.initState();
-    _fetchAll();
+    final provider = Provider.of<TransactionProvider>(context, listen: false);
+    provider.updateUser(FirebaseAuth.instance.currentUser!.uid);
+    provider.loadData();
   }
 
-  Future<void> _fetchAll() async {
-    await Future.wait([_loadUserData(), _loadTransactions()]);
-  }
+  List<domain.Transaction> get transactions =>
+      context.watch<TransactionProvider>().transactions;
 
-  Future<void> _loadUserData() async {
-    final doc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    if (doc.exists && doc.data()?['initialBalance'] != null) {
-      setState(() {
-        initialBalance = (doc.data()!['initialBalance'] as num).toDouble();
-      });
-    }
-  }
+  double get initialBalance =>
+      context.watch<TransactionProvider>().initialBalance ?? 0;
 
-  Future<void> _loadTransactions() async {
-    final snapshot =
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('transactions')
-            .get();
-
-    final fetched =
-        snapshot.docs.map((doc) {
-          final data = doc.data();
-          return {
-            ...data,
-            'id': doc.id,
-            'date': (data['date'] as Timestamp).toDate(),
-          };
-        }).toList();
-
-    setState(() {
-      transactions = fetched;
-    });
-  }
-
-  List<Map<String, dynamic>> get filteredTransactions {
+  List<domain.Transaction> get filteredTransactions {
     return transactions.where((t) {
-      final date = t['date'] as DateTime;
-      return t['type'] == (isExpense ? 'expense' : 'income') &&
+      final date = t.date;
+      final typeMatch =
+          t.type == (isExpense ? domain.TransactionType.expense : domain.TransactionType.income);
+      return typeMatch &&
           date.isAfter(selectedRange.start.subtract(const Duration(days: 1))) &&
           date.isBefore(selectedRange.end.add(const Duration(days: 1)));
     }).toList();
   }
 
   double get totalAmount =>
-      filteredTransactions.fold(0.0, (sum, t) => sum + (t['amount'] as double));
+      filteredTransactions.fold(0.0, (sum, t) => sum + t.amount);
 
   double get calculatedBalance {
     double expenses = transactions
-        .where((t) => t['type'] == 'expense')
-        .fold(0.0, (sum, t) => sum + (t['amount'] as double));
+        .where((t) => t.type == domain.TransactionType.expense)
+        .fold(0.0, (sum, t) => sum + t.amount);
     double incomes = transactions
-        .where((t) => t['type'] == 'income')
-        .fold(0.0, (sum, t) => sum + (t['amount'] as double));
+        .where((t) => t.type == domain.TransactionType.income)
+        .fold(0.0, (sum, t) => sum + t.amount);
     return initialBalance + incomes - expenses;
   }
 
   Map<String, double> get categoryTotals {
     final Map<String, double> totals = {};
     for (var t in filteredTransactions) {
-      final cat = t['category'] as String;
-      final amt = t['amount'] as double;
+      final cat = t.category;
+      final amt = t.amount;
       totals[cat] = (totals[cat] ?? 0) + amt;
     }
     return totals;
@@ -274,7 +245,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   shape: const CircleBorder(),
                   onPressed: () async {
                     await Navigator.pushNamed(context, '/add');
-                    await _fetchAll(); // Перезавантажити все
+                    await Provider.of<TransactionProvider>(context, listen: false)
+                        .loadData();
                   },
                   child: const Icon(Icons.add, color: Colors.white),
                 ),
@@ -342,18 +314,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                           category: entry.key,
                                           type:
                                               isExpense ? 'expense' : 'income',
-                                          transactions:
-                                              filteredTransactions
-                                                  .where(
-                                                    (t) =>
-                                                        t['category'] ==
-                                                        entry.key,
-                                                  )
-                                                  .toList(),
+                                          transactions: filteredTransactions
+                                              .where((t) => t.category == entry.key)
+                                              .toList(),
                                         ),
                                   ),
                                 );
-                                await _fetchAll(); // оновлення після повернення
+                                await Provider.of<TransactionProvider>(context,
+                                        listen: false)
+                                    .loadData();
                               },
                             ),
                           );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
+import 'package:provider/provider.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -21,10 +22,10 @@ class _SetupScreenState extends State<SetupScreen> {
   }
 
   Future<void> _checkIfUserHasBalance() async {
-    final userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(userId).get();
-
-    if (userDoc.exists && userDoc.data()!.containsKey('initialBalance')) {
+    final provider = Provider.of<TransactionProvider>(context, listen: false);
+    provider.updateUser(userId);
+    await provider.loadData();
+    if (provider.initialBalance != null) {
       Navigator.pushReplacementNamed(context, '/home');
     }
   }
@@ -39,15 +40,9 @@ class _SetupScreenState extends State<SetupScreen> {
     }
 
     try {
-      final userDocRef = FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId);
-
-      final snapshot = await userDocRef.get();
-      if (!snapshot.exists || !snapshot.data()!.containsKey('initialBalance')) {
-        await userDocRef.set({'initialBalance': balance});
-      }
-
+      final provider = Provider.of<TransactionProvider>(context, listen: false);
+      provider.updateUser(userId);
+      await provider.setInitialBalance(balance);
       Navigator.pushReplacementNamed(context, '/home');
     } catch (e) {
       setState(() {

@@ -1,7 +1,8 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,15 +54,10 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
 
-      final userId = FirebaseAuth.instance.currentUser!.uid;
-
-      final userDoc =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userId)
-              .get();
-
-      if (userDoc.exists && userDoc.data()?['initialBalance'] != null) {
+      final provider = Provider.of<TransactionProvider>(context, listen: false);
+      provider.updateUser(FirebaseAuth.instance.currentUser!.uid);
+      await provider.loadData();
+      if (provider.initialBalance != null) {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
         Navigator.pushReplacementNamed(context, '/setup');
@@ -92,7 +88,14 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       await FirebaseAuth.instance.signInWithCredential(credential);
-      Navigator.pushReplacementNamed(context, '/home');
+      final provider = Provider.of<TransactionProvider>(context, listen: false);
+      provider.updateUser(FirebaseAuth.instance.currentUser!.uid);
+      await provider.loadData();
+      if (provider.initialBalance != null) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        Navigator.pushReplacementNamed(context, '/setup');
+      }
     } catch (e) {
       setState(() {
         _error = 'Помилка входу через Google: \$e';

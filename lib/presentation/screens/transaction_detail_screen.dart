@@ -2,9 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'edit_transaction_screen.dart';
 
+import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
+import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
+import 'package:provider/provider.dart';
+
 class TransactionDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> transaction;
-  final void Function(Map<String, dynamic>) onEdit;
+  final domain.Transaction transaction;
+  final void Function(domain.Transaction) onEdit;
   final VoidCallback onDelete;
 
   const TransactionDetailScreen({
@@ -20,20 +24,20 @@ class TransactionDetailScreen extends StatefulWidget {
 }
 
 class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
-  late Map<String, dynamic> currentTransaction;
+  late domain.Transaction currentTransaction;
 
   @override
   void initState() {
     super.initState();
-    currentTransaction = Map<String, dynamic>.from(widget.transaction);
+    currentTransaction = widget.transaction;
   }
 
   @override
   Widget build(BuildContext context) {
-    final isExpense = currentTransaction['type'] == 'expense';
-    final amount = (currentTransaction['amount'] as double).toStringAsFixed(2);
+    final isExpense = currentTransaction.type == domain.TransactionType.expense;
+    final amount = currentTransaction.amount.toStringAsFixed(2);
     final color = isExpense ? Colors.red : Colors.green;
-    final date = DateFormat('dd.MM.yyyy').format(currentTransaction['date']);
+    final date = DateFormat('dd.MM.yyyy').format(currentTransaction.date);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
@@ -51,18 +55,18 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildRow('Назва:', currentTransaction['title']),
+            _buildRow('Назва:', currentTransaction.title),
             const SizedBox(height: 16),
             _buildRow('Сума:', '€$amount', valueColor: color),
             const SizedBox(height: 16),
-            _buildRow('Категорія:', currentTransaction['category']),
+            _buildRow('Категорія:', currentTransaction.category),
             const SizedBox(height: 16),
             _buildRow('Тип:', isExpense ? 'Витрата' : 'Дохід'),
             const SizedBox(height: 16),
             _buildRow('Дата:', date),
             const SizedBox(height: 16),
-            if ((currentTransaction['comment'] ?? '').toString().isNotEmpty)
-              _buildRow('Коментар:', currentTransaction['comment']),
+            if ((currentTransaction.comment ?? '').isNotEmpty)
+              _buildRow('Коментар:', currentTransaction.comment ?? ''),
             const SizedBox(height: 32),
             Row(
               children: [
@@ -96,7 +100,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
                               ),
                         ),
                       );
-                      if (result != null && result is Map<String, dynamic>) {
+                      if (result != null && result is domain.Transaction) {
                         setState(() => currentTransaction = result);
                         widget.onEdit(result);
                       }
