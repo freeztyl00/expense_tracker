@@ -1,52 +1,28 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:expense_tracker/utils/category_icons.dart';
+import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
+import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-class EditTransactionScreen extends StatefulWidget {
-  final Map<String, dynamic> transaction;
-
-  const EditTransactionScreen({super.key, required this.transaction});
+class AddTransactionScreen extends StatefulWidget {
+  const AddTransactionScreen({super.key});
 
   @override
-  State<EditTransactionScreen> createState() => _EditTransactionScreenState();
+  State<AddTransactionScreen> createState() => _AddTransactionScreenState();
 }
 
-class _EditTransactionScreenState extends State<EditTransactionScreen> {
-  late TextEditingController _titleController;
-  late TextEditingController _amountController;
-  late TextEditingController _commentController;
-  late DateTime selectedDate;
-  late bool isExpense;
-  late String selectedCategory;
+class _AddTransactionScreenState extends State<AddTransactionScreen> {
+  bool isExpense = true;
+  final _titleController = TextEditingController();
+  final _amountController = TextEditingController();
+  final _commentController = TextEditingController();
+  DateTime selectedDate = DateTime.now();
 
-  final List<String> expenseCategories = [
-    'Їжа',
-    'Транспорт',
-    'Розваги',
-    'Одяг',
-    'Тварини',
-    'Інше',
-  ];
-  final List<String> incomeCategories = ['Зарплата', 'Подарунок', 'Продаж'];
+  String selectedCategory = 'Їжа';
 
   List<String> get activeCategories =>
       isExpense ? expenseCategories : incomeCategories;
-
-  @override
-  void initState() {
-    super.initState();
-    _titleController = TextEditingController(text: widget.transaction['title']);
-    _amountController = TextEditingController(
-      text: widget.transaction['amount'].toString(),
-    );
-    _commentController = TextEditingController(
-      text: widget.transaction['comment'] ?? '',
-    );
-    selectedDate = (widget.transaction['date'] as DateTime);
-    isExpense = widget.transaction['type'] == 'expense';
-    selectedCategory = widget.transaction['category'];
-  }
 
   void _pickDate() async {
     final picked = await showDatePicker(
@@ -72,35 +48,25 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
       return;
     }
 
-    final userId = FirebaseAuth.instance.currentUser?.uid;
-    if (userId == null) return;
-
-    final updatedTx = {
-      'title': title,
-      'amount': amount,
-      'category': selectedCategory,
-      'type': isExpense ? 'expense' : 'income',
-      'date': Timestamp.fromDate(selectedDate),
-      'comment': comment,
-    };
+    final provider = context.read<TransactionProvider>();
+    final tx = domain.Transaction(
+      id: '',
+      title: title,
+      amount: amount,
+      category: selectedCategory,
+      type:
+          isExpense ? domain.TransactionType.expense : domain.TransactionType.income,
+      date: selectedDate,
+      comment: comment.isEmpty ? null : comment,
+    );
 
     try {
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .collection('transactions')
-          .doc(widget.transaction['id'])
-          .update(updatedTx);
-
-      Navigator.pop(context, {
-        'id': widget.transaction['id'],
-        ...updatedTx,
-        'date': selectedDate,
-      });
+      await provider.addTransaction(tx);
+      Navigator.pop(context);
     } catch (e) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Помилка при оновленні: $e')));
+      ).showSnackBar(SnackBar(content: Text('Помилка при збереженні: $e')));
     }
   }
 
@@ -119,7 +85,10 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Редагувати', style: const TextStyle(color: Colors.black)),
+        title: Text(
+          isExpense ? 'Нова витрата' : 'Новий дохід',
+          style: const TextStyle(color: Colors.black),
+        ),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -238,7 +207,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text('Зберегти'),
+              child: const Text('Додати'),
             ),
           ],
         ),
