@@ -1,5 +1,6 @@
 import '../repositories/transaction_repository.dart';
 
+// Юзкейс для видалення транзакції
 class DeleteTransaction {
   final TransactionRepository repository;
   DeleteTransaction(this.repository);

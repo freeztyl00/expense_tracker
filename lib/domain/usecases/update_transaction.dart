@@ -1,6 +1,7 @@
 import '../entities/transaction.dart';
 import '../repositories/transaction_repository.dart';
 
+// Оновлення існуючої транзакції
 class UpdateTransaction {
   final TransactionRepository repository;
   UpdateTransaction(this.repository);

@@ -1,9 +1,11 @@
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
+import 'package:expense_tracker/utils/categories_props.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+// Екран редагування вже існуючої транзакції
 class EditTransactionScreen extends StatefulWidget {
   final domain.TransactionExp transaction;
 
@@ -14,6 +16,7 @@ class EditTransactionScreen extends StatefulWidget {
 }
 
 class _EditTransactionScreenState extends State<EditTransactionScreen> {
+  // Контролери та поточні значення полів
   late TextEditingController _titleController;
   late TextEditingController _amountController;
   late TextEditingController _commentController;
@@ -21,16 +24,10 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
   late bool isExpense;
   late String selectedCategory;
 
-  final List<String> expenseCategories = [
-    'Їжа',
-    'Транспорт',
-    'Розваги',
-    'Одяг',
-    'Тварини',
-    'Інше',
-  ];
-  final List<String> incomeCategories = ['Зарплата', 'Подарунок', 'Продаж'];
+  final List<String> expenseCategories = expenseCategoriesList;
+  final List<String> incomeCategories = incomeCategoriesList;
 
+  // Категорії в залежності від типу
   List<String> get activeCategories =>
       isExpense ? expenseCategories : incomeCategories;
 
@@ -49,6 +46,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     selectedCategory = widget.transaction.category;
   }
 
+  // Вибір нової дати
   void _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -61,6 +59,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     }
   }
 
+  // Зберігаємо зміни
   Future<void> _submit() async {
     final title = _titleController.text.trim();
     final amount = double.tryParse(_amountController.text);
@@ -73,6 +72,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
       return;
     }
 
+    // Отримуємо провайдер для оновлення даних
     final provider = context.read<TransactionProvider>();
     final tx = domain.TransactionExp(
       id: widget.transaction.id,
@@ -88,9 +88,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     );
 
     try {
+      // Оновлюємо транзакцію та закриваємо екран
       await provider.updateTransaction(tx);
       Navigator.pop(context, tx);
     } catch (e) {
+      // Повідомляємо користувача про помилку
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Помилка при оновленні: $e')));

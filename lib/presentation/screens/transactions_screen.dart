@@ -1,15 +1,15 @@
-import 'package:expense_tracker/utils/category_colors.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
-import 'package:expense_tracker/utils/category_icons.dart';
+import 'package:expense_tracker/utils/categories_props.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'transaction_detail_screen.dart';
 import 'package:provider/provider.dart';
 
+// Список транзакцій певної категорії
 class TransactionsScreen extends StatefulWidget {
   final String category;
-  final String type; // 'expense' або 'income'
+  final String type; // expense або income
   final List<domain.TransactionExp> transactions;
 
   const TransactionsScreen({
@@ -24,11 +24,13 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
+  // Локальна копія списку, щоб оновлювати на екрані
   late List<domain.TransactionExp> localTransactions;
 
   @override
   void initState() {
     super.initState();
+    // Копіюємо початковий список для подальших змін
     localTransactions = List<domain.TransactionExp>.from(widget.transactions);
   }
 
@@ -73,6 +75,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Групуємо транзакції за датою
     final Map<String, List<domain.TransactionExp>> grouped = {};
 
     for (var tx in localTransactions) {
@@ -80,6 +83,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       grouped.putIfAbsent(dateStr, () => []).add(tx);
     }
 
+    // Сортуємо дати за спаданням
     final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
     return Scaffold(

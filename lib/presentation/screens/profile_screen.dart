@@ -1,9 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
+// Екран профілю користувача
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  // Вихід з акаунту
   Future<void> _signOut(BuildContext context) async {
     await FirebaseAuth.instance.signOut();
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);

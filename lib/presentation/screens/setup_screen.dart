@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 
+// Екран встановлення початкового балансу
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
 
@@ -11,6 +12,7 @@ class SetupScreen extends StatefulWidget {
 }
 
 class _SetupScreenState extends State<SetupScreen> {
+  // Контролер вводу балансу
   final _balanceController = TextEditingController();
   String? _error;
   final userId = FirebaseAuth.instance.currentUser!.uid;
@@ -21,6 +23,7 @@ class _SetupScreenState extends State<SetupScreen> {
     _checkIfUserHasBalance();
   }
 
+  // Перевіряємо, чи вже заданий баланс
   Future<void> _checkIfUserHasBalance() async {
     final provider = Provider.of<TransactionProvider>(context, listen: false);
     provider.updateUser(userId);
@@ -30,6 +33,7 @@ class _SetupScreenState extends State<SetupScreen> {
     }
   }
 
+  // Зберігаємо введений баланс
   Future<void> _saveBalance() async {
     final balanceText = _balanceController.text.trim();
     final balance = double.tryParse(balanceText);

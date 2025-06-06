@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'edit_transaction_screen.dart';
 import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
 
+// Екран перегляду однієї транзакції
 class TransactionDetailScreen extends StatefulWidget {
   final domain.TransactionExp transaction;
   final void Function(domain.TransactionExp) onEdit;
@@ -21,6 +22,7 @@ class TransactionDetailScreen extends StatefulWidget {
 }
 
 class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
+  // Поточна транзакція, яка може оновлюватись
   late domain.TransactionExp currentTransaction;
 
   @override

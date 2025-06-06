@@ -5,10 +5,12 @@ import '../../domain/repositories/transaction_repository.dart';
 import '../datasources/transaction_datasource.dart';
 import '../datasources/user_datasource.dart';
 
+// Реалізація репозиторію поверх Firestore
 class FirestoreTransactionRepository implements TransactionRepository {
   final TransactionDatasource transactionDatasource;
   final UserDatasource userDatasource;
 
+  // Ініціалізуємо джерела даних з переданого або стандартного Firestore
   FirestoreTransactionRepository({FirebaseFirestore? firestore})
     : transactionDatasource = TransactionDatasource(
         firestore ?? FirebaseFirestore.instance,

@@ -1,5 +1,6 @@
 import '../entities/transaction.dart';
 
+// Абстрактний репозиторій, що описує операції з транзакціями
 abstract class TransactionRepository {
   Future<List<TransactionExp>> getTransactions(String userId);
   Future<void> addTransaction(String userId, TransactionExp transaction);

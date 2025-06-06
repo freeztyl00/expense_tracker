@@ -13,7 +13,7 @@ final Map<String, IconData> categoryIcons = {
   'Продаж': Icons.storefront,
 };
 
-final List<String> expenseCategories = [
+final List<String> expenseCategoriesList = [
   'Їжа',
   'Транспорт',
   'Розваги',
@@ -23,4 +23,9 @@ final List<String> expenseCategories = [
   'Інше',
 ];
 
-final List<String> incomeCategories = ['Зарплата', 'Подарунок', 'Продаж'];
+final List<String> incomeCategoriesList = ['Зарплата', 'Подарунок', 'Продаж'];
+
+Color getCategoryColor(String category) {
+  final index = category.hashCode % Colors.primaries.length;
+  return Colors.primaries[index];
+}

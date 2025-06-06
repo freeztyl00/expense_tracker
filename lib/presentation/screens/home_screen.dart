@@ -1,7 +1,6 @@
-import 'package:expense_tracker/utils/category_colors.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
-import 'package:expense_tracker/utils/category_icons.dart';
+import 'package:expense_tracker/utils/categories_props.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'transactions_screen.dart';
 import 'package:provider/provider.dart';
 
+// Головний екран з балансом та діаграмою
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -17,7 +17,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  // Показуємо витрати або доходи
   bool isExpense = true;
+  // Поточний вибраний період
   DateTimeRange selectedRange = DateTimeRange(
     start: DateTime.now().subtract(const Duration(days: 7)),
     end: DateTime.now(),
@@ -37,6 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
   double get initialBalance =>
       context.watch<TransactionProvider>().initialBalance ?? 0;
 
+  // Транзакції в межах вибраного діапазону
   List<domain.TransactionExp> get filteredTransactions {
     return transactions.where((t) {
       final date = t.date;
@@ -51,9 +54,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }).toList();
   }
 
+  // Загальна сума відфільтрованих транзакцій
   double get totalAmount =>
       filteredTransactions.fold(0.0, (sum, t) => sum + t.amount);
 
+  // Розрахунок балансу на основі усіх транзакцій
   double get calculatedBalance {
     double expenses = transactions
         .where((t) => t.type == domain.TransactionType.expense)
@@ -64,6 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return initialBalance + incomes - expenses;
   }
 
+  // Групування сум за категоріями
   Map<String, double> get categoryTotals {
     final Map<String, double> totals = {};
     for (var t in filteredTransactions) {
@@ -74,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return totals;
   }
 
+  // Відкриває діалог вибору діапазону дат
   void _pickDateRange() async {
     final picked = await showDateRangePicker(
       context: context,
@@ -141,6 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  //Білдер картки з поточним балансом
   Widget _buildBalanceCard() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -167,6 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  //Білдер перемикача між витратами та доходами
   Widget _buildToggleButtons() {
     return Center(
       child: ToggleButtons(
@@ -182,6 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  //Білдер віджету вибору діапазону дат
   Widget _buildDateSelector() {
     return Center(
       child: GestureDetector(
@@ -208,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  //Білдер діаграми та списку категорій
   Widget _buildChartAndList() {
     final showPlaceholder = categoryTotals.isEmpty;
 
@@ -310,6 +321,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: amountColor,
                                 ),
                               ),
+                              // Перехід до переліку транзакцій категорії
                               onTap: () async {
                                 await Navigator.push(
                                   context,

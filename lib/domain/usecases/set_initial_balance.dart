@@ -1,5 +1,6 @@
 import '../repositories/transaction_repository.dart';
 
+// Зберегти стартовий баланс користувача
 class SetInitialBalance {
   final TransactionRepository repository;
   SetInitialBalance(this.repository);
