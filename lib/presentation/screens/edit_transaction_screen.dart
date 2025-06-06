@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+// Екран редагування вже існуючої транзакції
 class EditTransactionScreen extends StatefulWidget {
   final domain.Transaction transaction;
 
@@ -14,6 +15,7 @@ class EditTransactionScreen extends StatefulWidget {
 }
 
 class _EditTransactionScreenState extends State<EditTransactionScreen> {
+  // Контролери та поточні значення полів
   late TextEditingController _titleController;
   late TextEditingController _amountController;
   late TextEditingController _commentController;
@@ -31,6 +33,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
   ];
   final List<String> incomeCategories = ['Зарплата', 'Подарунок', 'Продаж'];
 
+  // Категорії в залежності від типу
   List<String> get activeCategories =>
       isExpense ? expenseCategories : incomeCategories;
 
@@ -47,6 +50,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     selectedCategory = widget.transaction.category;
   }
 
+  // Вибір нової дати
   void _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -59,6 +63,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     }
   }
 
+  // Зберігаємо зміни
   Future<void> _submit() async {
     final title = _titleController.text.trim();
     final amount = double.tryParse(_amountController.text);
@@ -71,6 +76,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
       return;
     }
 
+    // Отримуємо провайдер для оновлення даних
     final provider = context.read<TransactionProvider>();
     final tx = domain.Transaction(
       id: widget.transaction.id,
@@ -84,9 +90,11 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
     );
 
     try {
+      // Оновлюємо транзакцію та закриваємо екран
       await provider.updateTransaction(tx);
       Navigator.pop(context, tx);
     } catch (e) {
+      // Повідомляємо користувача про помилку
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Помилка при оновленні: $e')));
@@ -94,6 +102,7 @@ class _EditTransactionScreenState extends State<EditTransactionScreen> {
   }
 
   @override
+  // Побудова форми редагування
   Widget build(BuildContext context) {
     if (!activeCategories.contains(selectedCategory)) {
       selectedCategory = activeCategories.first;

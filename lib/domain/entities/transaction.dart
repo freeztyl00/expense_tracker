@@ -1,5 +1,7 @@
+// Можливі типи транзакцій
 enum TransactionType { expense, income }
 
+// Модель однієї транзакції
 class Transaction {
   final String id;
   final String title;
@@ -9,6 +11,7 @@ class Transaction {
   final DateTime date;
   final String? comment;
 
+  // Конструктор з усіма необхідними полями
   Transaction({
     required this.id,
     required this.title,

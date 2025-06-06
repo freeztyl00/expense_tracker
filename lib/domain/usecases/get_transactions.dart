@@ -1,10 +1,12 @@
 import '../entities/transaction.dart';
 import '../repositories/transaction_repository.dart';
 
+// Отримати список транзакцій користувача
 class GetTransactions {
   final TransactionRepository repository;
   GetTransactions(this.repository);
 
+  // Виконання запиту
   Future<List<Transaction>> call(String userId) {
     return repository.getTransactions(userId);
   }

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+// Екран для створення нової транзакції
 class AddTransactionScreen extends StatefulWidget {
   const AddTransactionScreen({super.key});
 
@@ -13,17 +14,23 @@ class AddTransactionScreen extends StatefulWidget {
 }
 
 class _AddTransactionScreenState extends State<AddTransactionScreen> {
+  // Чи вибраний режим витрати
   bool isExpense = true;
+  // Контролери для полів вводу
   final _titleController = TextEditingController();
   final _amountController = TextEditingController();
   final _commentController = TextEditingController();
+  // Обрана дата транзакції
   DateTime selectedDate = DateTime.now();
 
+  // Поточна категорія
   String selectedCategory = 'Їжа';
 
+  // Список категорій залежно від типу транзакції
   List<String> get activeCategories =>
       isExpense ? expenseCategories : incomeCategories;
 
+  // Вибір дати через діалог
   void _pickDate() async {
     final picked = await showDatePicker(
       context: context,
@@ -36,7 +43,9 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     }
   }
 
+  // Створюємо транзакцію і зберігаємо її
   Future<void> _submit() async {
+    // Зчитуємо дані з форми
     final title = _titleController.text.trim();
     final amount = double.tryParse(_amountController.text);
     final comment = _commentController.text.trim();
@@ -48,7 +57,8 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
       return;
     }
 
-    final provider = context.read<TransactionProvider>();
+    // Отримуємо провайдер для взаємодії з даними
+    final provider = context.read<TransactionProvider>(); // доступ до провайдера
     final tx = domain.Transaction(
       id: '',
       title: title,
@@ -61,9 +71,11 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
     );
 
     try {
+      // Зберігаємо через провайдер та повертаємося назад
       await provider.addTransaction(tx);
       Navigator.pop(context);
     } catch (e) {
+      // Показуємо повідомлення про помилку
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Помилка при збереженні: $e')));
@@ -73,6 +85,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   @override
   Widget build(BuildContext context) {
     if (!activeCategories.contains(selectedCategory)) {
+      // якщо поточна категорія неактуальна, беремо першу
       selectedCategory = activeCategories.first;
     }
 
@@ -197,6 +210,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            // Кнопка підтвердження створення транзакції
             ElevatedButton(
               onPressed: _submit,
               style: ElevatedButton.styleFrom(

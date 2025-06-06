@@ -6,6 +6,7 @@ import 'package:expense_tracker/domain/entities/transaction.dart' as domain;
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 
+// Екран перегляду однієї транзакції
 class TransactionDetailScreen extends StatefulWidget {
   final domain.Transaction transaction;
   final void Function(domain.Transaction) onEdit;
@@ -24,6 +25,7 @@ class TransactionDetailScreen extends StatefulWidget {
 }
 
 class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
+  // Поточна транзакція, яка може оновлюватись
   late domain.Transaction currentTransaction;
 
   @override
@@ -33,6 +35,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
   }
 
   @override
+  // Побудова детальної інформації
   Widget build(BuildContext context) {
     final isExpense = currentTransaction.type == domain.TransactionType.expense;
     final amount = currentTransaction.amount.toStringAsFixed(2);
@@ -127,6 +130,7 @@ class _TransactionDetailScreenState extends State<TransactionDetailScreen> {
     );
   }
 
+  // Допоміжний метод для відображення одного поля
   Widget _buildRow(String label, String value, {Color? valueColor}) {
     return RichText(
       text: TextSpan(

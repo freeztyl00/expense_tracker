@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Іконки для кожної категорії
 final Map<String, IconData> categoryIcons = {
   'Їжа': Icons.restaurant,
   'Транспорт': Icons.directions_car,
@@ -13,6 +14,7 @@ final Map<String, IconData> categoryIcons = {
   'Продаж': Icons.storefront,
 };
 
+// Перелік категорій витрат
 final List<String> expenseCategories = [
   'Їжа',
   'Транспорт',
@@ -23,4 +25,5 @@ final List<String> expenseCategories = [
   'Інше',
 ];
 
+// Перелік категорій доходів
 final List<String> incomeCategories = ['Зарплата', 'Подарунок', 'Продаж'];

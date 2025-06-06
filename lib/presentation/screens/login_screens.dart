@@ -4,6 +4,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
 
+// Екран логіну та реєстрації користувача
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -12,9 +13,12 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  // Контролери для полів введення
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  // Режим: вхід чи реєстрація
   bool _isLogin = true;
+  // Текст помилки, якщо вона виникла
   String? _error;
 
   @override
@@ -24,7 +28,9 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // Вхід або реєстрація за email/паролем
   Future<void> _submit() async {
+    // Читаємо введені дані
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
 
@@ -54,6 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
         );
       }
 
+      // Оновлюємо провайдер після успішного входу
       final provider = Provider.of<TransactionProvider>(context, listen: false);
       provider.updateUser(FirebaseAuth.instance.currentUser!.uid);
       await provider.loadData();
@@ -75,9 +82,10 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // Авторизація через Google
   Future<void> _signInWithGoogle() async {
     try {
-      final googleUser = await GoogleSignIn().signIn();
+      final googleUser = await GoogleSignIn().signIn(); // відкриваємо діалог
       if (googleUser == null) return;
 
       final googleAuth = await googleUser.authentication;
@@ -87,6 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: googleAuth.idToken,
       );
 
+      // Входимо до Firebase за отриманими даними
       await FirebaseAuth.instance.signInWithCredential(credential);
       final provider = Provider.of<TransactionProvider>(context, listen: false);
       provider.updateUser(FirebaseAuth.instance.currentUser!.uid);
@@ -104,6 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  // Побудова екрану авторизації
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
@@ -237,6 +247,7 @@ class _InputCard extends StatelessWidget {
   const _InputCard({required this.child});
 
   @override
+  // Контейнер з білим фоном для полів
   Widget build(BuildContext context) {
     return Card(
       color: Colors.white,

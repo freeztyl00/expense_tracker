@@ -1,18 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/entities/transaction.dart' as domain;
 
+// Робота з колекцією транзакцій у Firestore
 class TransactionDatasource {
   final FirebaseFirestore firestore;
+  // Передаємо екземпляр Firestore ззовні
   TransactionDatasource(this.firestore);
 
+  // Повертає посилання на підколекцію транзакцій користувача
   CollectionReference<Map<String, dynamic>> _txCollection(String userId) {
     return firestore.collection('users').doc(userId).collection('transactions');
   }
 
+  // Отримання всіх транзакцій користувача
   Future<List<domain.Transaction>> fetchTransactions(String userId) async {
     final snapshot = await _txCollection(userId).get();
     return snapshot.docs.map((doc) {
       final data = doc.data();
+      // Створюємо об'єкт доменної моделі з даних документу
       return domain.Transaction(
         id: doc.id,
         title: data['title'] ?? '',
@@ -27,6 +32,7 @@ class TransactionDatasource {
     }).toList();
   }
 
+  // Додаємо нову транзакцію
   Future<void> add(String userId, domain.Transaction tx) {
     return _txCollection(userId).add({
       'title': tx.title,
@@ -38,6 +44,7 @@ class TransactionDatasource {
     });
   }
 
+  // Оновлюємо існуючий документ
   Future<void> update(String userId, domain.Transaction tx) {
     return _txCollection(userId).doc(tx.id).update({
       'title': tx.title,
@@ -49,6 +56,7 @@ class TransactionDatasource {
     });
   }
 
+  // Видалення транзакції за id
   Future<void> delete(String userId, String id) {
     return _txCollection(userId).doc(id).delete();
   }

@@ -7,6 +7,7 @@ import 'transaction_detail_screen.dart';
 import '../utils/category_icons.dart';
 import 'package:provider/provider.dart';
 
+// Список транзакцій певної категорії
 class TransactionsScreen extends StatefulWidget {
   final String category;
   final String type; // 'expense' або 'income'
@@ -24,14 +25,17 @@ class TransactionsScreen extends StatefulWidget {
 }
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
+  // Локальна копія списку, щоб оновлювати на екрані
   late List<domain.Transaction> localTransactions;
 
   @override
   void initState() {
     super.initState();
+    // Копіюємо початковий список для подальших змін
     localTransactions = List<domain.Transaction>.from(widget.transactions);
   }
 
+  // Відкриває екран деталізації та повертає результат
   Future<void> _openTransactionDetail(domain.Transaction tx) async {
     final result = await Navigator.push(
       context,
@@ -71,7 +75,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
   }
 
   @override
+  // Побудова списку транзакцій
   Widget build(BuildContext context) {
+    // Групуємо транзакції за датою
     final Map<String, List<domain.Transaction>> grouped = {};
 
     for (var tx in localTransactions) {
@@ -79,6 +85,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       grouped.putIfAbsent(dateStr, () => []).add(tx);
     }
 
+    // Сортуємо дати за спаданням
     final sortedDates = grouped.keys.toList()..sort((a, b) => b.compareTo(a));
 
     return Scaffold(

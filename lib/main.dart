@@ -24,12 +24,14 @@ void main() async {
   runApp(const ExpenseTrackerApp());
 }
 
+// Кореневий віджет застосунку
 class ExpenseTrackerApp extends StatelessWidget {
   const ExpenseTrackerApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final repository = FirestoreTransactionRepository();
+    final repository = FirestoreTransactionRepository(); // репозиторій для use cases
+    // Передаємо провайдер даних нижчим віджетам
     return ChangeNotifierProvider(
       create: (_) => TransactionProvider(
         userId: FirebaseAuth.instance.currentUser?.uid ?? '',
@@ -56,6 +58,7 @@ class ExpenseTrackerApp extends StatelessWidget {
           border: OutlineInputBorder(),
         ),
       ),
+      // Початковий маршрут - екран входу
       initialRoute: '/login',
       routes: {
         '/login': (context) => const LoginScreen(),
@@ -63,9 +66,9 @@ class ExpenseTrackerApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/add': (context) => const AddTransactionScreen(),
         '/edit': (context) {
+          // Отримуємо передану транзакцію для редагування
           final args =
-              ModalRoute.of(context)!.settings.arguments
-                  as Map<String, dynamic>;
+              ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
           return EditTransactionScreen(transaction: args);
         },
         '/profile': (context) => const ProfileScreen(),

@@ -7,6 +7,7 @@ import '../../domain/usecases/get_transactions.dart';
 import '../../domain/usecases/set_initial_balance.dart';
 import '../../domain/usecases/update_transaction.dart';
 
+// Провайдер стану, який використовує юзкейси
 class TransactionProvider with ChangeNotifier {
   String userId;
   final GetTransactions getTransactionsUseCase;
@@ -19,6 +20,7 @@ class TransactionProvider with ChangeNotifier {
   List<Transaction> transactions = [];
   double? initialBalance;
 
+  // Всі залежності передаються через конструктор
   TransactionProvider({
     required this.userId,
     required this.getTransactionsUseCase,
@@ -29,10 +31,12 @@ class TransactionProvider with ChangeNotifier {
     required this.setInitialBalanceUseCase,
   });
 
+  // Змінюємо поточного користувача
   void updateUser(String id) {
     userId = id;
   }
 
+  // Завантажуємо транзакції та баланс паралельно
   Future<void> loadData() async {
     final results = await Future.wait([
       getTransactionsUseCase(userId),
@@ -43,21 +47,25 @@ class TransactionProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Додати нову транзакцію і оновити список
   Future<void> addTransaction(Transaction tx) async {
     await addTransactionUseCase(userId, tx);
     await loadData();
   }
 
+  // Оновити транзакцію
   Future<void> updateTransaction(Transaction tx) async {
     await updateTransactionUseCase(userId, tx);
     await loadData();
   }
 
+  // Видалити транзакцію
   Future<void> deleteTransaction(String id) async {
     await deleteTransactionUseCase(userId, id);
     await loadData();
   }
 
+  // Зберегти початковий баланс
   Future<void> setInitialBalance(double balance) async {
     await setInitialBalanceUseCase(userId, balance);
     await loadData();
