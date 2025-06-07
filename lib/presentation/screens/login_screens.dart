@@ -185,8 +185,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   });
                 },
                 style: ButtonStyle(
-                  overlayColor: MaterialStateProperty.all(Colors.transparent),
-                  foregroundColor: MaterialStateProperty.all(Colors.teal),
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  foregroundColor: WidgetStateProperty.all(Colors.teal),
                   splashFactory: NoSplash.splashFactory,
                 ),
                 child: Text(

@@ -44,7 +44,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
   }
 
   // Створюємо транзакцію і зберігаємо її
-  Future<void> _submit() async {
+  Future<void> _submitTransaction() async {
     // Зчитуємо дані з форми
     final title = _titleController.text.trim();
     final amount = double.tryParse(_amountController.text);
@@ -213,7 +213,7 @@ class _AddTransactionScreenState extends State<AddTransactionScreen> {
             ),
             const SizedBox(height: 24),
             ElevatedButton(
-              onPressed: _submit,
+              onPressed: _submitTransaction,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
                 foregroundColor: Colors.white,
