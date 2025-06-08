@@ -31,7 +31,7 @@ class ExpenseTrackerApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // репозиторій для use cases
+    // ініціалізація репозиторію для use cases
     final repository = FirestoreTransactionRepository();
     // Передаємо провайдер даних нижчим віджетам
     return ChangeNotifierProvider(
