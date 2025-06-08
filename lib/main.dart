@@ -4,6 +4,7 @@ import 'package:expense_tracker/presentation/screens/edit_transaction_screen.dar
 import 'package:expense_tracker/presentation/screens/home_screen.dart';
 import 'package:expense_tracker/presentation/screens/login_screens.dart';
 import 'package:expense_tracker/presentation/screens/profile_screen.dart';
+import 'package:expense_tracker/presentation/screens/auth_wrapper.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:expense_tracker/data/repositories/firestore_transaction_repository.dart';
 import 'package:expense_tracker/domain/usecases/add_transaction.dart';
@@ -60,8 +61,8 @@ class ExpenseTrackerApp extends StatelessWidget {
             border: OutlineInputBorder(),
           ),
         ),
-        // Початковий маршрут - екран входу
-        initialRoute: '/login',
+        // Головний віджет визначає екран в залежності від стану сесії
+        home: const AuthWrapper(),
         routes: {
           '/login': (context) => const LoginScreen(),
           '/setup': (context) => const SetupScreen(),
