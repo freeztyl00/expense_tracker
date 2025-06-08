@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLogin = true;
   bool _obscurePassword = true;
   String? _error;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -47,6 +48,10 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       if (_isLogin) {
         await FirebaseAuth.instance.signInWithEmailAndPassword(
@@ -79,11 +84,17 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() => _error = message);
     } catch (e) {
       setState(() => _error = 'Невідома помилка: $e');
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
   // Авторизація через Google
   Future<void> _signInWithGoogle() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
     try {
       final googleUser = await GoogleSignIn().signIn();
       if (googleUser == null) return;
@@ -107,8 +118,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (e) {
       setState(() {
-        _error = 'Помилка входу через Google: \$e';
+        _error = 'Помилка входу через Google: $e';
       });
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -116,12 +129,14 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
+      body: Stack(
+        children: [
+          SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
               const SizedBox(height: 24),
               Text(
                 _isLogin ? 'Вхід до акаунту' : 'Створення акаунту',
@@ -248,7 +263,14 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    );
+      if (_isLoading)
+        Container(
+          color: Colors.black45,
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+    ],
+  ),
+);
   }
 }
 
