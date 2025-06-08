@@ -43,9 +43,7 @@
 	</array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
-        <key>UIApplicationSupportsIndirectInputEvents</key>
-        <true/>
-        <key>NSFaceIDUsageDescription</key>
-        <string>Використовується для входу за відбитком пальця або Face ID</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 </dict>
 </plist>
