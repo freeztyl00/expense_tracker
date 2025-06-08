@@ -27,7 +27,10 @@ class AuthWrapper extends StatelessWidget {
           return const LoginScreen();
         }
 
-        final provider = Provider.of<TransactionProvider>(context, listen: false);
+        final provider = Provider.of<TransactionProvider>(
+          context,
+          listen: false,
+        );
         provider.updateUser(user.uid);
         return FutureBuilder(
           future: provider.loadData(),
