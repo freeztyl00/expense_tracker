@@ -3,8 +3,6 @@ import 'package:local_auth/local_auth.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../providers/transaction_provider.dart';
-import 'home_screen.dart';
-import 'setup_screen.dart';
 
 // Екран біометричної авторизації
 class BiometricAuthScreen extends StatefulWidget {
@@ -28,8 +26,8 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
   // Перевіряємо відбиток пальця та переходимо до додатку
   Future<void> _authenticate() async {
     try {
-      final canCheck = await _auth.canCheckBiometrics ||
-          await _auth.isDeviceSupported();
+      final canCheck =
+          await _auth.canCheckBiometrics || await _auth.isDeviceSupported();
       bool success = false;
       if (canCheck) {
         success = await _auth.authenticate(
@@ -43,7 +41,10 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
       }
       if (success) {
         final user = FirebaseAuth.instance.currentUser!;
-        final provider = Provider.of<TransactionProvider>(context, listen: false);
+        final provider = Provider.of<TransactionProvider>(
+          context,
+          listen: false,
+        );
         provider.updateUser(user.uid);
         await provider.loadData();
         if (provider.initialBalance == null) {
@@ -62,9 +63,7 @@ class _BiometricAuthScreenState extends State<BiometricAuthScreen> {
   @override
   Widget build(BuildContext context) {
     if (_isChecking) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
