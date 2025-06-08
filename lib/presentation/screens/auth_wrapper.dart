@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../presentation/screens/login_screens.dart';
+import 'biometric_auth_screen.dart';
 import 'package:provider/provider.dart';
 import '../../presentation/screens/home_screen.dart';
 import '../../presentation/screens/login_screens.dart';
@@ -27,6 +29,9 @@ class AuthWrapper extends StatelessWidget {
           return const LoginScreen();
         }
 
+        // Якщо користувач залогінений, просимо підтвердити вхід біометрією
+        return const BiometricAuthScreen();
+        
         final provider = Provider.of<TransactionProvider>(context, listen: false);
         provider.updateUser(user.uid);
         return FutureBuilder(
