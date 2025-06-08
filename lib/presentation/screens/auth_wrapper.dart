@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:provider/provider.dart';
-import '../../presentation/screens/home_screen.dart';
 import '../../presentation/screens/login_screens.dart';
-import '../../presentation/screens/setup_screen.dart';
-import '../providers/transaction_provider.dart';
+import 'biometric_auth_screen.dart';
 
 // Віджет, що перевіряє стан автентифікації користувача
 class AuthWrapper extends StatelessWidget {
@@ -27,25 +24,8 @@ class AuthWrapper extends StatelessWidget {
           return const LoginScreen();
         }
 
-        final provider = Provider.of<TransactionProvider>(context, listen: false);
-        provider.updateUser(user.uid);
-        return FutureBuilder(
-          future: provider.loadData(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              // Завантаження даних користувача
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-            // Якщо баланс ще не встановлено - показуємо екран налаштування
-            if (provider.initialBalance == null) {
-              return const SetupScreen();
-            }
-            // Інакше переходимо на головний екран
-            return const HomeScreen();
-          },
-        );
+        // Якщо користувач залогінений, просимо підтвердити вхід біометрією
+        return const BiometricAuthScreen();
       },
     );
   }

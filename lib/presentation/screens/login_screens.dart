@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:expense_tracker/presentation/providers/transaction_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:local_auth/local_auth.dart';
 
 // Екран логіну та реєстрації користувача
 class LoginScreen extends StatefulWidget {
@@ -119,6 +120,58 @@ class _LoginScreenState extends State<LoginScreen> {
     } catch (e) {
       setState(() {
         _error = 'Помилка входу через Google: $e';
+      });
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  // Вхід за допомогою біометрії
+  Future<void> _signInWithBiometrics() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) {
+        setState(() {
+          _error = 'Спочатку увійдіть звичайним способом';
+        });
+        return;
+      }
+
+      final auth = LocalAuthentication();
+      final canCheck = await auth.canCheckBiometrics ||
+          await auth.isDeviceSupported();
+      if (!canCheck) {
+        setState(() {
+          _error = 'Біометрія недоступна на пристрої';
+        });
+        return;
+      }
+      final authenticated = await auth.authenticate(
+        localizedReason: 'Підтвердіть вхід відбитком пальця',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+      if (!authenticated) {
+        setState(() {
+          _error = 'Не вдалося розпізнати відбиток';
+        });
+        return;
+      }
+
+      final provider = Provider.of<TransactionProvider>(context, listen: false);
+      provider.updateUser(currentUser.uid);
+      await provider.loadData();
+      if (provider.initialBalance != null) {
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        Navigator.pushReplacementNamed(context, '/setup');
+      }
+    } catch (e) {
+      setState(() {
+        _error = 'Помилка біометричного входу: $e';
       });
     } finally {
       setState(() => _isLoading = false);
@@ -247,6 +300,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _signInWithBiometrics,
+                icon: const Icon(Icons.fingerprint),
+                label: const Text('Увійти відбитком пальця'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  foregroundColor: Colors.white,
                 ),
               ),
               if (_error != null)
